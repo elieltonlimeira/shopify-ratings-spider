@@ -9,8 +9,8 @@ from shopify.util import remove_url_parameters
 
 class RatingsSpider(scrapy.Spider):
     name = 'shopify_ratings_spider'
-    start_urls = [
-        'https://apps.shopify.com/browse/all?page=1&pricing=all&requirements=off&sort_by=installed',
+    start_urls = ['https://apps.shopify.com/browse/all?app_integration_pos=off&app_integration_shopify_checkout=off&pricing=paid&requirements=off&sort_by=installed', 
+                  'https://apps.shopify.com/browse/all?app_integration_pos=off&app_integration_shopify_checkout=off&pricing=free&requirements=off&sort_by=installed',
     ]
 
     def parse(self, response):
@@ -36,6 +36,13 @@ class RatingsSpider(scrapy.Spider):
         item['url'] = remove_url_parameters(response.url)
         item['overall_rating'] = response.css('.ui-star-rating__rating::text').get()
         item['visit_date'] = datetime.datetime.utcnow().isoformat()
+        
+         # identifies the app by paid or free, getting the referer link of the actual app link 
+        Referer = str(response.request.headers.get('Referer'))       
+        if ('pricing=paid' in Referer) == True:
+            item['pricing'] = 'paid'   
+        if ('pricing=free' in Referer) == True:
+            item['pricing'] = 'free'
 
         # initialize all ratings with zero, so the spider fill only the voted ones
         for i in range(1, 6):

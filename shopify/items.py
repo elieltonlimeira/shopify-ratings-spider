@@ -18,3 +18,4 @@ class ShopifyItem(scrapy.Item):
     ratings_2 = scrapy.Field()
     ratings_1 = scrapy.Field()
     visit_date = scrapy.Field()
+    pricing = scrapy.Field()
